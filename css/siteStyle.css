@@ -1,0 +1,43 @@
+/*Spacing between navbar and content*/
+body {
+	padding-top: 70px;
+}
+
+/*Navbar Color*/
+.navbar-color {
+	background: transparent linear-gradient(to bottom, #1D674E 0%, #134132 100%) repeat scroll 0% 0%
+}
+
+/*Navbar Brand*/
+.navbar-default .navbar-brand {
+    color: #E3E3E3;
+    background-color: transparent;
+}
+.navbar-default .navbar-brand:focus, .navbar-default .navbar-brand:hover {
+    color: #FFFFFF;
+    background-color: transparent;
+}
+
+/*Active Nav*/
+.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:focus, .navbar-default .navbar-nav > .active > a:hover {
+    color: #FFFFFF;
+}
+.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .open > a {
+    background: transparent linear-gradient(to bottom, #1D674E 0%, #0F3428 100%) repeat scroll 0% 0%;
+}
+
+/*Navbar toggle*/
+.navbar-default .navbar-toggle:focus, .navbar-default .navbar-toggle:hover {
+    background: transparent linear-gradient(to bottom, #1D674E 0%, #134132 100%) repeat scroll 0% 0%;
+}
+.navbar-default .navbar-toggle {
+    border-color: #E3E3E3;
+}
+
+/*Navbar Links*/
+.navbar-default .navbar-nav li > a, .navbar-default .navbar-nav li > a:visited {
+    color: #E3E3E3;
+}
+.navbar-default .navbar-nav li > a:active, .navbar-default .navbar-nav li > a:hover {
+    color: #FFFFFF;
+}
