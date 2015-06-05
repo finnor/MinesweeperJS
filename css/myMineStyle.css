@@ -1,0 +1,48 @@
+/*Minesweeper Buttons*/
+.cell-btn{
+  font-weight: bold;
+  width: 25px;
+  height: 25px;
+  border: 1px solid blue;
+  background: -moz-linear-gradient(to bottom right, white , blue);
+  padding: 0;
+}
+.cell-btn:hover:not(.disabled) {
+  background: -moz-linear-gradient(to bottom right, white , darkblue);
+}
+.cell-btn:active:not(.flag):not(.disabled){
+  background: #ccc;
+}
+
+/*Class for disabled buttons*/
+.disabled{
+  background: #f0f0f0;
+}
+
+/*Colors for button text*/
+.one {
+  color: blue;
+}
+.two {
+  color: green;
+}
+.three {
+  color: red
+}
+.four {
+  color: darkblue;
+}
+.five {
+  color: brown;
+}
+.six {
+  color: cyan;
+}
+.seven {
+  color: black;
+}
+.eight {
+  color: gray;
+}
+
+
