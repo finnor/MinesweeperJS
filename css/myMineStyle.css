@@ -19,6 +19,10 @@
   background: #f0f0f0;
 }
 
+.rl-click {
+  background: #ccc;
+}
+
 /*Colors for button text*/
 .one {
   color: blue;

@@ -1,5 +1,5 @@
 // Main
-var game = new Game();
+var game;
 createFirstGame(30,16,99);
 
 /**
@@ -8,7 +8,8 @@ createFirstGame(30,16,99);
  */
 function Game() {
 	this.board = [];
-	this.visible = []
+	this.visible = [];
+	this.flag = [];
 	this.started = false;
 }
 
@@ -31,35 +32,94 @@ function createInitialBoardUI(x, y) {
 	var boardUI = $(".board");
 	boardUI.html(tableHTML);
   
+	
+	var singleClick = true;
+	var rightDown = false;
+	var leftDown = false;
+	
 	//Create event for left click -- reveal a spot
-	$(".cell-btn").click(function(){
-		if (!$(this).hasClass("flag")) {
-			var x = parseInt(this.getAttribute('data-x'));
-			var y = parseInt(this.getAttribute('data-y'));
-			//Handling for start of game where first click can't be mine
-			if (!game.started) {
-				if (game.board[x][y]>=10) {
-					changeBoard(x, y);
+	$(".cell-btn").click(function(){		
+		//If not part of a right + left click
+		if (singleClick) {
+			if (!$(this).hasClass("flag")) {
+				var x = parseInt(this.getAttribute('data-x'));
+				var y = parseInt(this.getAttribute('data-y'));
+				//Handling for start of game where first click can't be mine
+				if (!game.started) {
+					if (game.board[x][y]>=10) {
+						changeBoard(x, y);
+					}
 				}
+				game.started = true;
+				click(x, y, $(this));
 			}
-			game.started = true;
-			var value = resolveCellOutput(game.board[x][y], $(this));
-			gameMechanics(value, x, y);
 		}
 	});
 	
 	//Create event for right click -- flag a mine
 	$(".cell-btn").on("contextmenu", function(e) {
 		e.preventDefault();
-		if(!($(this).hasClass("disabled"))) {
-			if ($(this).hasClass("flag")) {
-				$(this).removeClass("flag");
-				$(this).text("\xa0");
-			} else {
-				$(this).addClass("flag");
-				$(this).text("|");
-			}     
+		
+		//If not part of a right + left click
+		if (singleClick) {
+			if(!($(this).hasClass("disabled"))) {
+				var x = parseInt(this.getAttribute('data-x'));
+				var y = parseInt(this.getAttribute('data-y'));
+				if ($(this).hasClass("flag")) {
+					$(this).removeClass("flag");
+					$(this).text("\xa0");
+					game.flag[x][y] = false;
+				} else {
+					$(this).addClass("flag");
+					$(this).text("|");
+					game.flag[x][y] = true;
+				}     
+			}
 		}
+	});	
+	
+	//Create event for right+left click -- clear neighbors
+	$(".cell-btn").mousedown(function(e) {
+		singleClick = true;
+		if( e.button == 2 )
+			rightDown = true;
+		if (e.button == 0)
+			leftDown = true;
+		
+		//Can only right+left click on cells that are visible
+		if (rightDown && leftDown) {
+			var x = parseInt(this.getAttribute('data-x'));
+			var y = parseInt(this.getAttribute('data-y'));
+			if (game.visible[x][y]) {
+				if (game.board[x][y] == getNeighboringFlagCount(x, y)) {
+					//Display what cells would be clicked on right+left click
+					showClickableNeighbors(x, y);
+				}
+			}
+		}
+	});	
+	
+	//Create event for right+left click -- clear neighbors
+	$(".cell-btn").mouseup(function(e) {
+		if (rightDown && leftDown) {
+			var x = parseInt(this.getAttribute('data-x'));
+			var y = parseInt(this.getAttribute('data-y'));
+			singleClick = false;
+			
+			//Can only right+left click on cells that are visible
+			if (game.visible[x][y]) {
+				//Remove css from the show clickable neighbors
+				$(".cell-btn").removeClass("rl-click");
+				var flagCount = getNeighboringFlagCount(x, y);
+				if (flagCount==game.board[x][y]) {
+					clearNeighbors(x, y);
+				}
+			}
+		}
+		if( e.button == 2 )
+			rightDown = false;
+		if (e.button == 0)
+			leftDown = false;
 	});
 }
 
@@ -86,14 +146,17 @@ function createFirstGame(x, y, mines) {
  */
 function generateBoard(x, y, mineNumber) {
 	
-	game.board = [[0]];
-	game.visible = [[0]];
+	game = new Game();
+	
 	for (var i=0; i<x+2; i++) {
-		game.board[i] = [0];
-		game.visible[i] = [0];
+		game.board[i] = [];
+		game.visible[i] = [];
+		game.flag[i] = [];
+		
 		for (var j=0; j<y+2; j++) {
 			game.board[i][j] = 0;
 			game.visible[i][j] = false;
+			game.flag[i][j] = false;
 		}
 	}
 	
@@ -213,6 +276,76 @@ function changeBoard(x, y) {
 }
 
 /**
+ * Shows what cells would be clicked by right+left click
+ *
+ * @param {int} x The column clicked
+ * @param {int} y The row clicked 
+ */
+function showClickableNeighbors(x, y) {
+	for (var i=x-1; i<=x+1; i++) {
+		for (var j=y-1; j<=y+1; j++) {
+			if (!(i==x && j==y)) {
+				if (game.flag[i][j]==false && game.visible[i][j]==false) {
+					var cell = $("#btn" + i + "-" + j);
+					cell.addClass("rl-click");
+				}
+			}
+		}
+	}	
+}
+
+
+
+/**
+ * Counts the number of flags in neighboring cells
+ *
+ * @param {int} x The column clicked
+ * @param {int} y The row clicked 
+ */
+function getNeighboringFlagCount(x, y) {
+	flagCount = 0;
+	
+    flagCount = game.flag[x-1][y-1] + game.flag[x][y-1] + game.flag[x+1][y-1] +
+    			game.flag[x-1][y] + game.flag[x+1][y] +
+    			game.flag[x-1][y+1] + game.flag[x][y+1] + game.flag[x+1][y+1];
+    
+    return flagCount;
+}
+
+/**
+ * Clears all neighbors if the number of flags equals the spot clicked
+ *
+ * @param {int} x The column clicked
+ * @param {int} y The row clicked 
+ */
+function clearNeighbors(x, y) {
+	for (var i=x-1; i<=x+1; i++) {
+		for (var j=y-1; j<=y+1; j++) {
+			if (!(i==x && j==y)) {
+				if (game.flag[i][j]==false) {
+					var cell = $("#btn" + i + "-" + j);
+					click(i, j, cell);
+				}
+			}
+		}
+	}
+}
+
+/**
+ * Directs response to actions based on value of clicked cell
+ *
+ * @param {int} x The column clicked
+ * @param {int} y The row clicked 
+ * @param {<button>} cell The button that was clicked   
+ */
+function click(x, y, cell) {
+	var value = resolveCellOutput(game.board[x][y], cell);
+	gameMechanics(value, x, y);
+}
+
+
+
+/**
  * Directs response to actions based on value of clicked cell
  *
  * @param {String} value The value of the cell
@@ -291,7 +424,6 @@ function resolveCellOutput(value, cell) {
  * @param {int[][]} visited An array of that which cells have been processed
  */
 function explode(x, y, visited) {
-	console.debug(x + "|" + y + "|" + visited[x][y]);
 	visited[x][y] = true;
 	
 	var cell = $("#btn" + x + "-" + y);
