@@ -5,39 +5,53 @@ body {
 
 /*Navbar Color*/
 .navbar-color {
-	background: transparent linear-gradient(to bottom, #1D674E 0%, #134132 100%) repeat scroll 0% 0%
+	background: transparent linear-gradient(to bottom, #1D674E 0%, #134132 100%) repeat scroll 0% 0%;
 }
 
 /*Navbar Brand*/
-.navbar-default .navbar-brand {
+.navbar-color .navbar-brand {
     color: #E3E3E3;
     background-color: transparent;
 }
-.navbar-default .navbar-brand:focus, .navbar-default .navbar-brand:hover {
+.navbar-color .navbar-brand:focus, .navbar-color .navbar-brand:hover {
     color: #FFFFFF;
     background-color: transparent;
 }
 
 /*Active Nav*/
-.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:focus, .navbar-default .navbar-nav > .active > a:hover {
+.navbar-color .navbar-nav > .active > a, .navbar-color .navbar-nav > .active > a:focus, .navbar-color .navbar-nav > .active > a:hover {
     color: #FFFFFF;
 }
-.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .open > a {
+.navbar-color .navbar-nav > .active > a, .navbar-color .navbar-nav > .open > a {
     background: transparent linear-gradient(to bottom, #1D674E 0%, #0F3428 100%) repeat scroll 0% 0%;
 }
 
 /*Navbar toggle*/
-.navbar-default .navbar-toggle:focus, .navbar-default .navbar-toggle:hover {
+.navbar-color .navbar-toggle:focus, .navbar-color .navbar-toggle:hover {
     background: transparent linear-gradient(to bottom, #1D674E 0%, #134132 100%) repeat scroll 0% 0%;
 }
-.navbar-default .navbar-toggle {
+.navbar-color .navbar-toggle {
     border-color: #E3E3E3;
 }
 
 /*Navbar Links*/
-.navbar-default .navbar-nav li > a, .navbar-default .navbar-nav li > a:visited {
+.navbar-color .navbar-nav li > a, .navbar-color .navbar-nav li > a:visited {
     color: #E3E3E3;
 }
-.navbar-default .navbar-nav li > a:active, .navbar-default .navbar-nav li > a:hover {
+.navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:focus, .navbar-default .navbar-nav > .open > a:hover, .navbar-color .navbar-nav li > a:active, .navbar-color .navbar-nav li > a:hover {
     color: #FFFFFF;
+}
+
+/*Dropdown nav menus*/
+.dropdown-menu li:not(.active-dropdown) a {
+    color: #E3E3E3 !important;
+}
+.dropdown-menu > li a:hover {
+	color: #FFFFFF !important;
+}
+.active-dropdown a {
+	color: #FFFFFF !important;
+}
+.dropdown-menu, .dropdown-menu > .active-dropdown, .dropdown-menu > li > a:focus, .dropdown-menu > li > a:hover {
+	background: transparent linear-gradient(to bottom, #1D674E 0%, #0F3428 100%) repeat scroll 0% 0%;
 }
