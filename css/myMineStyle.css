@@ -4,14 +4,18 @@
   width: 25px;
   height: 25px;
   border: 1px solid blue;
-  background: -moz-linear-gradient(to bottom right, white , blue);
+  background: linear-gradient(to bottom right, white, blue);
   padding: 0;
 }
-.cell-btn:hover:not(.disabled) {
-  background: -moz-linear-gradient(to bottom right, white , darkblue);
+.cell-btn:hover:not(.flag):not(.disabled) {
+  background: linear-gradient(to bottom right, white, darkblue);
 }
 .cell-btn:active:not(.flag):not(.disabled){
   background: #ccc;
+}
+.flag:hover {
+  background: url(../icons/flag.ico) center no-repeat,
+			  linear-gradient(to bottom right, white, darkblue);
 }
 
 /*Class for disabled buttons*/
@@ -47,6 +51,21 @@
 }
 .eight {
   color: gray;
+}
+
+.flag{
+  background: url(../icons/flag.ico) center no-repeat,
+	          linear-gradient(to bottom right, white, blue);
+}
+.flag-wrong {
+  background: url(../icons/flag.ico) center no-repeat,
+              #f0f0f0;
+}
+.mine {
+  background: #f0f0f0 url(../icons/mine2.ico) center no-repeat;
+}
+.mine-cause {
+  background: #f0f0f0 url(../icons/mine3.ico) center no-repeat;
 }
 
 

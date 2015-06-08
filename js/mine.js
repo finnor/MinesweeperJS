@@ -11,6 +11,7 @@ function Game() {
 	this.visible = [];
 	this.flag = [];
 	this.started = false;
+	this.over = false;
 }
 
 /**
@@ -67,11 +68,9 @@ function createInitialBoardUI(x, y) {
 				var y = parseInt(this.getAttribute('data-y'));
 				if ($(this).hasClass("flag")) {
 					$(this).removeClass("flag");
-					$(this).text("\xa0");
 					game.flag[x][y] = false;
 				} else {
 					$(this).addClass("flag");
-					$(this).text("|");
 					game.flag[x][y] = true;
 				}     
 			}
@@ -356,7 +355,10 @@ function gameMechanics(value, x, y) {
 	switch (value) {
 		//Mine
 		case "X":
-			gameOver();
+			if (game.over==false) {
+				game.over=true;
+				gameOver(x, y);
+			}
 			break;
 		//Empty space
 		case "\xa0":
@@ -407,11 +409,15 @@ function resolveCellOutput(value, cell) {
 	      break;
 	    default:
 	      value = "X";
-	      cell.addClass("mine");
+	      if (game.over==true)
+	    	  cell.addClass("mine");
+	      else
+	    	  cell.addClass("mine-cause");
 	      break;
 	}
 	
-	cell.text(value);
+	if (value!="X")
+		cell.text(value);
 	
 	return value;
 }
@@ -448,14 +454,20 @@ function explode(x, y, visited) {
 /**
  * Reveals and disables board when a mine is clicked
  */
-function gameOver() {
+function gameOver(x, y) {
 	for (var i=0; i<game.board.length; i++) {
 		for (var j=0; j<game.board[i].length; j++) {
-			cell = $("#btn" + i + "-" + j);
-			value = resolveCellOutput(game.board[i][j], cell);
-			cell.text(value);
-			cell.addClass("disabled");
-			cell.removeClass("flag");
+			if (!(x==i && y==j)) {
+				cell = $("#btn" + i + "-" + j);
+				value = resolveCellOutput(game.board[i][j], cell);
+				if (cell.hasClass("flag")) {
+					cell.text("X");
+					cell.removeClass();
+					cell.addClass("cell-btn flag-wrong");
+				} else {
+					cell.addClass("disabled");
+				}
+			}
 		}
 	}
 }
