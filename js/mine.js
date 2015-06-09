@@ -10,8 +10,10 @@ function Game() {
 	this.board = [];
 	this.visible = [];
 	this.flag = [];
+	this.mineCount = 0;
 	this.started = false;
 	this.over = false;
+	this.squaresLeft = 0;
 }
 
 /**
@@ -47,6 +49,7 @@ function createInitialBoardUI(x, y) {
 				var y = parseInt(this.getAttribute('data-y'));
 				//Handling for start of game where first click can't be mine
 				if (!game.started) {
+					startTimer();
 					if (game.board[x][y]>=10) {
 						changeBoard(x, y);
 					}
@@ -69,10 +72,13 @@ function createInitialBoardUI(x, y) {
 				if ($(this).hasClass("flag")) {
 					$(this).removeClass("flag");
 					game.flag[x][y] = false;
+					game.mineCount++;
 				} else {
 					$(this).addClass("flag");
 					game.flag[x][y] = true;
-				}     
+					game.mineCount--;
+				}  
+				$(".mine-count").text(game.mineCount);
 			}
 		}
 	});	
@@ -144,8 +150,14 @@ function createFirstGame(x, y, mines) {
  *  @return {Game} 
  */
 function generateBoard(x, y, mineNumber) {
+	stopTimer();
+	clearTimer();
 	
 	game = new Game();
+	
+	game.mineCount = mineNumber;
+	game.squaresLeft = (x * y) - mineNumber;
+	$(".mine-count").text(game.mineCount);
 	
 	for (var i=0; i<x+2; i++) {
 		game.board[i] = [];
@@ -321,9 +333,11 @@ function clearNeighbors(x, y) {
 	for (var i=x-1; i<=x+1; i++) {
 		for (var j=y-1; j<=y+1; j++) {
 			if (!(i==x && j==y)) {
-				if (game.flag[i][j]==false) {
-					var cell = $("#btn" + i + "-" + j);
-					click(i, j, cell);
+				if (i!=0 && i!=(game.board.length-1) && j!=0 && j!=(game.board[0].length-1)) {
+					if (game.flag[i][j]==false && game.visible[i][j]==false) {
+						var cell = $("#btn" + i + "-" + j);
+						click(i, j, cell);
+					}
 				}
 			}
 		}
@@ -352,6 +366,8 @@ function click(x, y, cell) {
  * @param {int} y The row clicked   
  */
 function gameMechanics(value, x, y) {
+	game.visible[x][y] = true;
+	
 	switch (value) {
 		//Mine
 		case "X":
@@ -362,10 +378,16 @@ function gameMechanics(value, x, y) {
 			break;
 		//Empty space
 		case "\xa0":
-			explode(x, y, game.visible.slice());
+			explode(x, y);
+			break;
+		default:
+			console.debug(x + "|" + y);
+			game.squaresLeft--;
 			break;
 	}
-	game.visible[x][y] = true;
+	
+	if (game.squaresLeft==0)
+		gameWon();
 }
 
 /**
@@ -427,22 +449,22 @@ function resolveCellOutput(value, cell) {
  *
  * @param {int} x The column clicked
  * @param {int} y The row clicked   
- * @param {int[][]} visited An array of that which cells have been processed
  */
-function explode(x, y, visited) {
-	visited[x][y] = true;
-	
+function explode(x, y) {
 	var cell = $("#btn" + x + "-" + y);
 	if (!(cell.hasClass("flag"))) {
-		game.visible[x][y] == true;
-	    resolveCellOutput(game.board[x][y], cell);
+		game.visible[x][y] = true;
+		game.squaresLeft--;
+		console.debug(x + "|" + y);
+	    var value = resolveCellOutput(game.board[x][y], cell);
 	    
 	    if (game.board[x][y]==0) {
 	    	for (var i=x-1; i<=x+1; i++) {
 	    		for (var j=y-1; j<=y+1; j++) {
-	    			if (!(i==0 || i==(game.board.length-1) || y==0 || y==(game.board[0].length-1))) {
-	    				if (visited[i][j]==false) {
-	    					explode(i, j, visited);
+	    			if (i!=0 && i!=(game.board.length-1) && j!=0 && j!=(game.board[0].length-1)) {
+	    				if (game.visible[i][j]==false) {
+	    					game.visible[i][j] = true;
+	    					explode(i, j);
 	    				}
 	    			}
 	    		}
@@ -453,21 +475,42 @@ function explode(x, y, visited) {
 
 /**
  * Reveals and disables board when a mine is clicked
+ * @param {int} x The column clicked
+ * @param {int} y The row clicked   
  */
 function gameOver(x, y) {
-	for (var i=0; i<game.board.length; i++) {
-		for (var j=0; j<game.board[i].length; j++) {
+	stopTimer();
+	$(".board-btn").removeClass("board-btn-normal");
+	$(".board-btn").addClass("board-btn-game-over");
+	
+	for (var i=1; i<game.board.length-1; i++) {
+		for (var j=1; j<game.board[i].length-1; j++) {
 			if (!(x==i && y==j)) {
 				cell = $("#btn" + i + "-" + j);
+				cell.addClass("disabled");
 				value = resolveCellOutput(game.board[i][j], cell);
-				if (cell.hasClass("flag")) {
+				if (cell.hasClass("flag") && value!="X") {
 					cell.text("X");
-					cell.removeClass();
-					cell.addClass("cell-btn flag-wrong");
-				} else {
-					cell.addClass("disabled");
 				}
 			}
+		}
+	}
+}
+
+/**
+ * Disables board when game is won
+ */
+function gameWon() {
+	stopTimer();
+	$(".board-btn").removeClass("board-btn-normal");
+	$(".board-btn").addClass("board-btn-win");
+	$(".cell-btn").addClass("disabled");
+	
+	for (var i=1; i<game.board.length-1; i++) {
+		for (var j=1; j<game.board[i].length-1; j++) {
+			cell = $("#btn" + i + "-" + j);
+			if (game.board[i][j]>=10)
+				cell.addClass("flag");
 		}
 	}
 }
@@ -477,15 +520,21 @@ function gameOver(x, y) {
  */
 $(".board-btn").click(function () {
   $(".cell-btn").removeClass("disabled");
+  $(this).removeClass();
+  $(this).addClass("board-btn center board-btn-normal");
   game = generateBoard(30, 16, 99);
   $(".cell-btn").text("\xa0");
   $(".cell-btn").attr('class','cell-btn');
+});
+
+$(".board-btn").on("contextmenu", function(e) {
+	e.preventDefault();
 });
 
 /**
  * Event handler find a move
  */
 $(".move-btn").click(function() {
-});
+});	
 
 

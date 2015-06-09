@@ -1,3 +1,50 @@
+.game {
+	width: 750px;
+}
+
+.center {
+  margin: 18px auto 10px auto;
+  text-align: center;
+}
+
+.right {
+  float: right;
+  margin-right: 10px;
+}
+
+.left {
+  float: left;
+  margin-left: 10px;
+}
+
+
+/*New game button*/
+.board-btn-win {
+  background: #f0f0f0 url(../icons/smiley.ico) center no-repeat;
+  width: 30px;
+  height: 30px;
+  background-size: 24px 24px;
+}
+.board-btn-normal {
+  background: #f0f0f0 url(../icons/smiley1.ico) center no-repeat;
+  width: 30px;
+  height: 30px;
+  background-size: 24px 24px;
+}
+.board-btn:active {
+  background: #f0f0f0 url(../icons/smiley2.ico) center no-repeat;
+  width: 30px;
+  height: 30px;
+  background-size: 24px 24px;
+}
+.board-btn-game-over {
+  background: #f0f0f0 url(../icons/smiley3.ico) center no-repeat;
+  width: 30px;
+  height: 30px;
+  background-size: 24px 24px;
+}
+
+
 /*Minesweeper Buttons*/
 .cell-btn{
   font-weight: bold;
@@ -13,6 +60,7 @@
 .cell-btn:active:not(.flag):not(.disabled){
   background: #ccc;
 }
+
 .flag:hover {
   background: url(../icons/flag.ico) center no-repeat,
 			  linear-gradient(to bottom right, white, darkblue);
@@ -60,6 +108,10 @@
 .flag-wrong {
   background: url(../icons/flag.ico) center no-repeat,
               #f0f0f0;
+}
+.flag.disabled {
+  background: url(../icons/flag.ico) center no-repeat,
+              #f0f0f0;	
 }
 .mine {
   background: #f0f0f0 url(../icons/mine2.ico) center no-repeat;

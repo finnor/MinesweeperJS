@@ -39,21 +39,31 @@
     </nav>
 
 	<!-- Content -->
-    <div class="container center">
-	    <table cellspacing="0" cellpadding="0" class="board">
-		</table>
-		<br>
-		<button type="button" class="board-btn">Make Board</button> 
-		<button type="button" class="move-btn">Get Move</button> 
-		<br><br>
-		<p>Move: </p>
-		<p class="move"></p>
+    <div class="container">
+   		<div class="game">
+ 		    <div class="game-header">
+ 		    	<div class="left"><h3 class="mine-count left">00</h3></div>
+ 		    	<div class="right"><h3 class="timer right">000</h3></div>
+ 		    	<div class="center"><button type="button" class="board-btn board-btn-normal center">&nbsp;</button></div>
+   			</div>
+   			<div class="game-div">
+		    	<table cellspacing="0" cellpadding="0" class="board">
+				</table>
+			</div>
+			<div class="solver">
+				<button type="button" class="move-btn">Get Move</button> 
+				<br><br>
+				<p>Move: </p>
+				<p class="move"></p>
+			</div>
+		</div>
     </div> 
     
     
     <!-- Scripts -->
     <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <script src="js/timer.js"></script>
     <script src="js/mine.js"></script>
     
   </body>
