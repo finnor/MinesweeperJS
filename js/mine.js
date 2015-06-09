@@ -2,11 +2,16 @@
 var game;
 createFirstGame(30,16,99);
 var solver = new Solver(game);
+game.onReveal = solver.updateEdges;
+game.context = solver;
 
 /**
  * Event handler find a move
  */
 $(".move-btn").click(function() {
+	var move = solver.getMove();
+	console.debug(move);
+	$(".move").text("(" + move.x + ", " + move.y + ") " + move.message);
 });	
 
 
@@ -19,7 +24,7 @@ function Game(x, y, mines) {
 	this.board = [];
 	this.visible = [];
 	this.flag = [];
-	this.mineCount = 0;
+	this.mineCount = mines;
 	this.started = false;
 	this.over = false;
 	this.squaresLeft = (x * y) - mines;
@@ -27,6 +32,24 @@ function Game(x, y, mines) {
 	this.y = y;
 	this.lastXPlayed = 0;
 	this.lastYPlayed = 0;
+	this.onReveal = function() {};
+	this.context = null;
+	
+	/**
+	 * Counts the number of flags in neighboring cells
+	 *
+	 * @param {int} x The column clicked
+	 * @param {int} y The row clicked 
+	 */
+	this.getNeighboringFlagCount = function(x, y) {
+		flagCount = 0;
+		
+	    flagCount = game.flag[x-1][y-1] + game.flag[x][y-1] + game.flag[x+1][y-1] +
+	    			game.flag[x-1][y] + game.flag[x+1][y] +
+	    			game.flag[x-1][y+1] + game.flag[x][y+1] + game.flag[x+1][y+1];
+	    
+	    return flagCount;
+	}
 }
 
 /**
@@ -109,7 +132,7 @@ function createInitialBoardUI(x, y) {
 			var x = parseInt(this.getAttribute('data-x'));
 			var y = parseInt(this.getAttribute('data-y'));
 			if (game.visible[x][y]) {
-				if (game.board[x][y] == getNeighboringFlagCount(x, y)) {
+				if (game.board[x][y] == game.getNeighboringFlagCount(x, y)) {
 					//Display what cells would be clicked on right+left click
 					showClickableNeighbors(x, y);
 				}
@@ -128,7 +151,7 @@ function createInitialBoardUI(x, y) {
 			if (game.visible[x][y]) {
 				//Remove css from the show clickable neighbors
 				$(".cell-btn").removeClass("rl-click");
-				var flagCount = getNeighboringFlagCount(x, y);
+				var flagCount = game.getNeighboringFlagCount(x, y);
 				if (flagCount==game.board[x][y]) {
 					clearNeighbors(x, y);
 				}
@@ -317,23 +340,6 @@ function showClickableNeighbors(x, y) {
 }
 
 
-
-/**
- * Counts the number of flags in neighboring cells
- *
- * @param {int} x The column clicked
- * @param {int} y The row clicked 
- */
-function getNeighboringFlagCount(x, y) {
-	flagCount = 0;
-	
-    flagCount = game.flag[x-1][y-1] + game.flag[x][y-1] + game.flag[x+1][y-1] +
-    			game.flag[x-1][y] + game.flag[x+1][y] +
-    			game.flag[x-1][y+1] + game.flag[x][y+1] + game.flag[x+1][y+1];
-    
-    return flagCount;
-}
-
 /**
  * Clears all neighbors if the number of flags equals the spot clicked
  *
@@ -396,6 +402,7 @@ function gameMechanics(value, x, y) {
 		default:
 			console.debug(x + "|" + y);
 			game.squaresLeft--;
+			game.onReveal(x, y, game.context);
 			break;
 	}
 	
@@ -468,6 +475,7 @@ function explode(x, y) {
 	if (!(cell.hasClass("flag"))) {
 		game.visible[x][y] = true;
 		game.squaresLeft--;
+		game.onReveal(x, y, game.context);
 		console.debug(x + "|" + y);
 	    var value = resolveCellOutput(game.board[x][y], cell);
 	    
@@ -536,6 +544,9 @@ $(".board-btn").click(function () {
   $(this).removeClass();
   $(this).addClass("board-btn center board-btn-normal");
   game = generateBoard(30, 16, 99);
+  solver = new Solver(game);
+  game.onReveal = solver.updateEdges;
+  game.context = solver;
   $(".cell-btn").text("\xa0");
   $(".cell-btn").attr('class','cell-btn');
 });

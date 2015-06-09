@@ -1,14 +1,18 @@
 function Solver(game) {
 	this.game = game;
-	this.edges = createEdgesBoard(game.x, game.y);
 	this.lastXScouted = 0;
 	this.lastYScouted = 0;
-	
-	function createEdgesBoard(x, y) {
+	this.createEdgesBoard = function (x, y) {
 		var edges = [];
+		for (var i=0; i<=x+1; i++) {
+			edges[i] = [];
+			for (var j=0; j<=y+1; j++) {
+				edges[i][j] = 0;
+			}
+		}
+		
 		//Iterate across entire game board
 		for (var i=1; i<=x; i++) {
-			edges[i] = [];
 			for (var j=1; j<=y; j++) {
 				var visibleCount = 0;
 				//At each cell, count visible neighbors
@@ -45,11 +49,51 @@ function Solver(game) {
 		}
 		return (edges);
 	}
+	this.edges = this.createEdgesBoard(game.x, game.y);
 	
-	function isEdge(x, y) {
+	this.isEdge = function (x, y) {
 		if (game.visible[x][y]==true && this.edges[x][y]>0)
 			return true;
 		else
 			return false;
 	}
+	
+	this.getMove = function () {
+		moveFound = false;
+		for(var i=1; i<=game.x; i++) {
+			for(var j=1; j<=game.y; j++) {
+				if (this.isEdge(i, j)) {
+					flagCount = game.getNeighboringFlagCount(i, j);
+					if (flagCount==game.board[i][j] && this.edges[i][j]> flagCount) {
+						var move = new Move(i, j, "X-Neighbors: Can click all neighbors");
+						return move;
+					}
+					if (game.board[i][j]==this.edges[i][j] && this.edges[i][j]>flagCount) {
+						var move = new Move(i, j, "X-Neighbors: Can flag all neighbors");
+						return move;
+					}
+				}
+			}
+		}
+		
+		return (new Move(0, 0, "No moves known"));
+	}
+	
+	this.updateEdges = function(x, y, context) {
+		for(var i=x-1; i<=x+1; i++) {
+			for(var j=y-1; j<=y+1; j++) {
+				if (!(i==x && j==y)) {
+					if (game.board[i][j]<10)
+						context.edges[i][j]--;
+				}
+			}
+		}
+	}
+	
+}
+
+function Move(x, y, message) {
+	this.x = x;
+	this.y = y;
+	this.message = message;
 }
