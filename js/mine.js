@@ -14,6 +14,8 @@ function Game() {
 	this.started = false;
 	this.over = false;
 	this.squaresLeft = 0;
+	this.lastXPlayed = 0;
+	this.lastYPlayed = 0;
 }
 
 /**
@@ -354,6 +356,8 @@ function clearNeighbors(x, y) {
 function click(x, y, cell) {
 	var value = resolveCellOutput(game.board[x][y], cell);
 	gameMechanics(value, x, y);
+	game.lastXPlayed = x;
+	game.lastYPlayed = y;
 }
 
 
