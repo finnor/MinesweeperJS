@@ -25,6 +25,8 @@ function Game(x, y, mines) {
 	this.squaresLeft = (x * y) - mines;
 	this.x = x;
 	this.y = y;
+	this.lastXPlayed = 0;
+	this.lastYPlayed = 0;
 }
 
 /**
@@ -363,6 +365,8 @@ function clearNeighbors(x, y) {
 function click(x, y, cell) {
 	var value = resolveCellOutput(game.board[x][y], cell);
 	gameMechanics(value, x, y);
+	game.lastXPlayed = x;
+	game.lastYPlayed = y;
 }
 
 
