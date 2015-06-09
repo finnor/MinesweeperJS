@@ -1,19 +1,30 @@
 // Main
 var game;
 createFirstGame(30,16,99);
+var solver = new Solver(game);
+
+/**
+ * Event handler find a move
+ */
+$(".move-btn").click(function() {
+});	
+
+
 
 /**
  * Class Representation of the board
  * @constructor
  */
-function Game() {
+function Game(x, y, mines) {
 	this.board = [];
 	this.visible = [];
 	this.flag = [];
 	this.mineCount = 0;
 	this.started = false;
 	this.over = false;
-	this.squaresLeft = 0;
+	this.squaresLeft = (x * y) - mines;
+	this.x = x;
+	this.y = y;
 }
 
 /**
@@ -153,10 +164,8 @@ function generateBoard(x, y, mineNumber) {
 	stopTimer();
 	clearTimer();
 	
-	game = new Game();
+	game = new Game(x, y, mineNumber);
 	
-	game.mineCount = mineNumber;
-	game.squaresLeft = (x * y) - mineNumber;
 	$(".mine-count").text(game.mineCount);
 	
 	for (var i=0; i<x+2; i++) {
@@ -530,11 +539,4 @@ $(".board-btn").click(function () {
 $(".board-btn").on("contextmenu", function(e) {
 	e.preventDefault();
 });
-
-/**
- * Event handler find a move
- */
-$(".move-btn").click(function() {
-});	
-
 

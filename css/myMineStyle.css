@@ -105,10 +105,6 @@
   background: url(../icons/flag.ico) center no-repeat,
 	          linear-gradient(to bottom right, white, blue);
 }
-.flag-wrong {
-  background: url(../icons/flag.ico) center no-repeat,
-              #f0f0f0;
-}
 .flag.disabled {
   background: url(../icons/flag.ico) center no-repeat,
               #f0f0f0;	
