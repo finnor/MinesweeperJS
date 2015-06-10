@@ -32,8 +32,7 @@ function Game(x, y, mines) {
 	this.y = y;
 	this.lastXPlayed = 0;
 	this.lastYPlayed = 0;
-	this.onReveal = function() {};
-	this.context = null;
+	this.edges;
 	
 	/**
 	 * Counts the number of flags in neighboring cells
@@ -49,6 +48,71 @@ function Game(x, y, mines) {
 	    			game.flag[x-1][y+1] + game.flag[x][y+1] + game.flag[x+1][y+1];
 	    
 	    return flagCount;
+	}
+	
+	this.createEdgesBoard = function () {
+		this.edges = [];
+		for (var i=0; i<=game.x+1; i++) {
+			this.edges[i] = [];
+			for (var j=0; j<=game.y+1; j++) {
+				this.edges[i][j] = 0;
+			}
+		}
+		
+		//Iterate across entire game board
+		for (var i=1; i<=game.x; i++) {
+			for (var j=1; j<=game.y; j++) {
+				var visibleCount = 0;
+				//At each cell, count visible neighbors
+				//Edge cases - corners
+				if (i==1 && j==1) 
+					visibleCount = !game.visible[i+1][j] + !game.visible[i][j+1] + !game.visible[i+1][j+1];
+				else if (i==game.x && j==1)
+					visibleCount = !game.visible[i-1][j] + !game.visible[i][j+1] + !game.visible[i-1][j+1];
+				else if (i==1 && j==game.y)
+					visibleCount = !game.visible[i+1][j] + !game.visible[i][j-1] + !game.visible[i+1][j-1];
+				else if (i==game.x && j==game.y)
+					visibleCount = !game.visible[i-1][j] + !game.visible[i][j-1] + !game.visible[i-1][j-1];
+				//Edges but not corners
+				else if (i==1)
+					visibleCount =  !game.visible[i][j-1] + !game.visible[i+1][j-1] +
+						!game.visible[i+1][j] + !game.visible[i][j+1] + !game.visible[i+1][j+1];
+				else if (i==game.x)
+					visibleCount =  !game.visible[i][j-1] + !game.visible[i-1][j-1] +
+						!game.visible[i-1][j] + !game.visible[i][j+1] + !game.visible[i-1][j+1];
+				else if (j==1)
+					visibleCount =  !game.visible[i][j+1] + !game.visible[i+1][j+1] +
+						!game.visible[i+1][j] + !game.visible[i-1][j+1] + !game.visible[i-1][j];
+				else if (j==game.y)
+					visibleCount =  !game.visible[i][j-1] + !game.visible[i+1][j-1] +
+						!game.visible[i+1][j] + !game.visible[i-1][j-1] + !game.visible[i-1][j];
+				//Else add all neighbors
+				else 
+					visibleCount = !game.visible[x-1][y-1] + !game.visible[x][y-1] + !game.visible[x+1][y-1] +
+    					!game.visible[x-1][y] + !game.visible[x+1][y] +
+    					!game.visible[x-1][y+1] + !game.visible[x][y+1] + !game.visible[x+1][y+1];
+			    
+			    this.edges[i][j] = visibleCount;
+			}
+		}
+	}
+	
+	this.isEdge = function (x, y) {
+		if (this.visible[x][y]==true && this.edges[x][y]>0)
+			return true;
+		else
+			return false;
+	}
+	
+	this.updateEdges = function(x, y) {
+		for(var i=x-1; i<=x+1; i++) {
+			for(var j=y-1; j<=y+1; j++) {
+				if (!(i==x && j==y)) {
+					if (this.board[i][j]<10)
+						this.edges[i][j]--;
+				}
+			}
+		}
 	}
 }
 
@@ -231,6 +295,7 @@ function generateBoard(x, y, mineNumber) {
 		}
 	}
   
+	game.createEdgesBoard();
 	game.started = false;
 	return game;
 }
@@ -402,7 +467,7 @@ function gameMechanics(value, x, y) {
 		default:
 			console.debug(x + "|" + y);
 			game.squaresLeft--;
-			game.onReveal(x, y, game.context);
+			game.updateEdges(x, y);
 			break;
 	}
 	
@@ -475,7 +540,7 @@ function explode(x, y) {
 	if (!(cell.hasClass("flag"))) {
 		game.visible[x][y] = true;
 		game.squaresLeft--;
-		game.onReveal(x, y, game.context);
+		game.updateEdges(x, y);
 		console.debug(x + "|" + y);
 	    var value = resolveCellOutput(game.board[x][y], cell);
 	    
