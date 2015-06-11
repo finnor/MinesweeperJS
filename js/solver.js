@@ -2,34 +2,69 @@ function Solver(game) {
 	this.game = game;
 	this.lastXScouted = 0;
 	this.lastYScouted = 0;
+	this.flagVerified = [];
+	this.moves;
+	for(var i=0; i<this.game.flag.length; i++) {
+		this.flagVerified[i] = [];
+		for(var j=0; j<this.game.flag[i].length; j++) {
+			this.flagVerified[i][j] = false;
+		}
+	}
 	this.patterns = new Patterns();
 	
-	this.getMove = function () {
-		moveFound = false;
-		var move;
+	this.getAllPlays = function () {
+		this.moves = [];
+		var tempMove;
 		for(var i=1; i<=game.x; i++) {
 			for(var j=1; j<=game.y; j++) {
-				if (game.isEdge(i, j)) {
-					flagCount = game.getNeighboringFlagCount(i, j);
-					
-					if (flagCount==game.board[i][j] && game.edges[i][j]> flagCount) {
-						move = new Move(i, j, "X-Neighbors: Can click all neighbors"); //Relies on flags being correct
-						move.allClick(game.flag, game.visible);
-						return move;
-					}
-					if (game.board[i][j]==game.edges[i][j] && game.edges[i][j]>flagCount) {
-						move = new Move(i, j, "X-Neighbors: Can flag all neighbors");
-						move.allMine(game.flag, game.visible);
-						return move;
-					}
-					move = this.patternMatching(i, j);
-					if (move!=null)
-						return move;
-				}
+				tempMove = this.getMove(i, j);
+				if (tempMove!=null)
+					this.moves.push(tempMove);
 			}
 		}
-		return (new Move(0, 0, "No moves known"));
-	}
+	};
+	
+	this.getMove = function (i, j) {
+		var move = null;
+		if (game.isEdge(i, j)) {
+			var flagCount = game.getNeighboringFlagCount(i, j, this.flagVerified);		
+			console.debug(i + "|" + j + "|" + flagCount + "|" + game.board[i][j] + "|" + game.edges[i][j])
+			if (flagCount==game.board[i][j] && game.edges[i][j]> flagCount) {
+				console.debug("1");
+				this.checkCorrectFlags(i, j);
+				move = new Move(i, j, "X-Neighbors: Can click all neighbors"); //Relies on flags being correct
+				move.allClick(this.flagVerified, game.visible);
+				return move;
+			}
+			if (game.board[i][j]==game.edges[i][j] && game.edges[i][j]>flagCount) {
+				move = new Move(i, j, "X-Neighbors: Can flag all neighbors");
+				move.allMine(this.flagVerified, game.visible);
+			} else {
+				move = this.patternMatching(i, j);
+			}
+			if (move!=null) {
+				this.addVerifiedFlags(move.canMine);
+				return move;
+			}
+		}
+		return null;
+	};
+	
+	this.checkCorrectFlags = function(x, y) {
+		console.debug(true);
+		for(var i=x-1; i<=x+1; i++) {
+			for(var j=y-1; j<=y+1; j++) {
+				if (game.flag[i][j] && !this.flagVerified[i][j])
+					console.debug("Uncertain flag at: " + i + "|" + j);
+			}
+		}
+	};
+	
+	this.addVerifiedFlags = function(canMine) {
+		for(var i=0; i<canMine.length; i++) {
+			this.flagVerified[canMine[i][0]][canMine[i][1]] = true;
+		}
+	};
 	
 	
 	this.getArea = function(x, y, length) {
@@ -47,7 +82,7 @@ function Solver(game) {
 			}
 		}	
 		return area;
-	}
+	};
 	
 	this.patternMatching = function(x, y) {
 		var inputPattern = [];
@@ -79,7 +114,7 @@ function Solver(game) {
 				}
 			}
 		}
-	}
+	};
 	
 	
 	this.testIfAlreadyPerformed = function(move) {
@@ -94,7 +129,7 @@ function Solver(game) {
 		}
 		
 		return true;
-	}
+	};
 	
 }
 
@@ -118,7 +153,7 @@ function Move(x, y, message) {
 				}
 			}
 		}
-	}
+	};
 	
 	this.allMine = function(flag, visible) {
 		for (var i=this.x-1; i<=this.x+1; i++) {
@@ -129,7 +164,7 @@ function Move(x, y, message) {
 				}
 			}
 		}
-	}
+	};
 	
 	this.allClick = function(flag, visible) {
 		for (var i=this.x-1; i<=this.x+1; i++) {
@@ -141,7 +176,7 @@ function Move(x, y, message) {
 				}
 			}
 		}
-	}
+	};
 		
 }
 
@@ -204,7 +239,7 @@ function Patterns() {
 			}
 		}	
 		return newPattern;
-	}
+	};
 	
 	this.match = function (inputPattern, testPattern) {
 		for (var i=0; i<inputPattern.length; i++) {
@@ -214,7 +249,7 @@ function Patterns() {
 			}
 		}
 		return true;
-	}
+	};
 	
 	this.compare = function (input, patternSymbol) {
 		switch (input) {
@@ -235,7 +270,7 @@ function Patterns() {
 		}
 		
 		return result;
-	}
+	};
 	
 	this.testUnknown = function(patternSymbol) {
 		switch (patternSymbol) {
@@ -244,7 +279,7 @@ function Patterns() {
 			default:
 				return false;
 		}
-	}
+	};
 	
 	this.testOutOfBounds = function(patternSymbol) {
 		switch (patternSymbol) {
@@ -255,7 +290,7 @@ function Patterns() {
 			default:
 				return false;
 		}
-	}
+	};
 	
 	this.testNumber = function(patternSymbol) {
 		
@@ -267,5 +302,5 @@ function Patterns() {
 			default:
 				return false;
 		}
-	}
+	};
 }

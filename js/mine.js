@@ -4,14 +4,22 @@ createFirstGame(30,16,99);
 var solver = new Solver(game);
 game.onReveal = solver.updateEdges;
 game.context = solver;
+var movesPosition = -1;
 
 /**
  * Event handler find a move
  */
 $(".move-btn").click(function() {
-	var move = solver.getMove();
-	displayMove(move);
-	$(".move").text("(" + move.x + ", " + move.y + ") " + move.message);
+	movesPosition++;
+	var move = solver.moves[movesPosition];
+	if (movesPosition>0 && move==null) {
+		movesPosition = -1;
+	} else if (move!=null) {
+		$(".move").text("(" + move.x + ", " + move.y + ") " + move.message);
+		displayMove(move);
+	} else {
+		$(".move").text("No Moves");
+	}
 });	
 
 function displayMove(move) {
@@ -50,12 +58,12 @@ function Game(x, y, mines) {
 	 * @param {int} x The column clicked
 	 * @param {int} y The row clicked 
 	 */
-	this.getNeighboringFlagCount = function(x, y) {
+	this.getNeighboringFlagCount = function(x, y, flag) {
 		flagCount = 0;
 		
-	    flagCount = game.flag[x-1][y-1] + game.flag[x][y-1] + game.flag[x+1][y-1] +
-	    			game.flag[x-1][y] + game.flag[x+1][y] +
-	    			game.flag[x-1][y+1] + game.flag[x][y+1] + game.flag[x+1][y+1];
+	    flagCount = flag[x-1][y-1] + flag[x][y-1] + flag[x+1][y-1] +
+	    			flag[x-1][y] + flag[x+1][y] +
+	    			flag[x-1][y+1] + flag[x][y+1] + flag[x+1][y+1];
 	    
 	    return flagCount;
 	}
@@ -190,6 +198,8 @@ function createInitialBoardUI(x, y) {
 					game.flag[x][y] = true;
 					game.mineCount--;
 				}  
+				solver.getAllPlays();
+				movesPosition = -1;
 				$(".mine-count").text(game.mineCount);
 			}
 		}
@@ -208,7 +218,7 @@ function createInitialBoardUI(x, y) {
 			var x = parseInt(this.getAttribute('data-x'));
 			var y = parseInt(this.getAttribute('data-y'));
 			if (game.visible[x][y]) {
-				if (game.board[x][y] == game.getNeighboringFlagCount(x, y)) {
+				if (game.board[x][y] == game.getNeighboringFlagCount(x, y, game.flag)) {
 					//Display what cells would be clicked on right+left click
 					showClickableNeighbors(x, y);
 				}
@@ -227,7 +237,7 @@ function createInitialBoardUI(x, y) {
 			if (game.visible[x][y]) {
 				//Remove css from the show clickable neighbors
 				$(".cell-btn").removeClass("rl-click");
-				var flagCount = game.getNeighboringFlagCount(x, y);
+				var flagCount = game.getNeighboringFlagCount(x, y, game.flag);
 				if (flagCount==game.board[x][y]) {
 					clearNeighbors(x, y);
 				}
@@ -450,6 +460,9 @@ function click(x, y, cell) {
 	gameMechanics(value, x, y);
 	game.lastXPlayed = x;
 	game.lastYPlayed = y;
+	if (!game.over) 
+		solver.getAllPlays();
+	movesPosition = -1;
 }
 
 
