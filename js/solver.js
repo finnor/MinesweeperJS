@@ -51,12 +51,17 @@ function Solver(game) {
 		var key = game.board[x][y];
 		for (var i=0; i<this.patterns.patterns[key].length; i++) {
 			testPattern = this.patterns.patterns[key][i][0];
+			moveIfCorrect = this.patterns.patterns[key][i][1];
 			for (var j=0; j<4; j++) {
 				if (this.patterns.match(inputPattern, testPattern)) {
+					move = new Move(x, y, "")
+					move.determineAction(moveIfCorrect)
 					console.debug("Match at:" + x + "|" + y);
-					return true;
+					console.debug(move);
+					return move;
 				} else {
 					testPattern = this.patterns.rotate(testPattern);
+					moveIfCorrect = this.patterns.rotate(moveIfCorrect);
 				}
 			}
 		}
@@ -68,6 +73,23 @@ function Move(x, y, message) {
 	this.x = x;
 	this.y = y;
 	this.message = message;
+	this.canClick = [];
+	this.canMine = [];
+	
+	this.determineAction = function(pattern) {
+		for (var i=0; i<pattern.length; i++) {
+			for (var j=0; j<pattern[i].length; j++) {
+				switch (pattern[i][j]) {
+					case "X":
+						this.canMine.push([x+i-1, y+j-1]);
+						break;
+					case "+":
+						this.canClick.push([x+i-1, y+j-1]);
+						break;
+				}
+			}
+		}
+	}
 }
 
 

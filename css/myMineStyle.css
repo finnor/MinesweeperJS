@@ -54,7 +54,7 @@
   background: linear-gradient(to bottom right, white, blue);
   padding: 0;
 }
-.cell-btn:hover:not(.flag):not(.disabled) {
+.cell-btn:hover:not(.flag):not(.disabled):not(.clickable):not(.mineable) {
   background: linear-gradient(to bottom right, white, darkblue);
 }
 .cell-btn:active:not(.flag):not(.disabled){
@@ -116,4 +116,18 @@
   background: #f0f0f0 url(../icons/mine3.ico) center no-repeat;
 }
 
+.clickable {
+  background: #8FFF8F;
+}
 
+.clickable:hover {
+  background: #009933;
+}
+
+.mineable {
+  background: #FF5C5C;
+}
+
+.mineable:hover {
+  background: #CC0000;
+}

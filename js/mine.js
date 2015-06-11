@@ -10,11 +10,21 @@ game.context = solver;
  */
 $(".move-btn").click(function() {
 	var move = solver.getMove();
-	console.debug(move);
+	displayMove(move);
 	$(".move").text("(" + move.x + ", " + move.y + ") " + move.message);
 });	
 
-
+function displayMove(move) {
+	for(var i=0; i<move.canClick.length; i++) {
+		var cell = $("#btn" + move.canClick[i][0] + "-" + move.canClick[i][1]);
+		cell.addClass("clickable");
+	}
+	
+	for(var i=0; i<move.canMine.length; i++) {
+		var cell = $("#btn" + move.canMine[i][0] + "-" + move.canMine[i][1]);
+		cell.addClass("mineable");
+	}
+}
 
 /**
  * Class Representation of the board
@@ -145,6 +155,7 @@ function createInitialBoardUI(x, y) {
 		//If not part of a right + left click
 		if (singleClick) {
 			if (!$(this).hasClass("flag")) {
+				$(this).removeClass("clickable");
 				var x = parseInt(this.getAttribute('data-x'));
 				var y = parseInt(this.getAttribute('data-y'));
 				//Handling for start of game where first click can't be mine
@@ -174,6 +185,7 @@ function createInitialBoardUI(x, y) {
 					game.flag[x][y] = false;
 					game.mineCount++;
 				} else {
+					$(this).removeClass("mineable");
 					$(this).addClass("flag");
 					game.flag[x][y] = true;
 					game.mineCount--;
