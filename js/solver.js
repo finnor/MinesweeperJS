@@ -15,30 +15,43 @@ function Solver(game) {
 	this.getAllPlays = function () {
 		this.moves = [];
 		var tempMove;
-		for(var i=1; i<=game.x; i++) {
-			for(var j=1; j<=game.y; j++) {
-				tempMove = this.getMove(i, j);
-				if (tempMove!=null)
-					this.moves.push(tempMove);
+		var newMove = false;
+		do {
+			newMove = false;
+			for(var i=1; i<=game.x; i++) {
+				for(var j=1; j<=game.y; j++) {
+					var doAdd = true;
+					tempMove = this.getMove(i, j);
+					if (tempMove!=null) {
+						//Test for uniqueness
+						for(var k=0; k<this.moves.length; k++) {
+							iteratedMove = this.moves[k];
+							if(iteratedMove.x==tempMove.x && iteratedMove.y==tempMove.y && iteratedMove.type==tempMove.type) {
+								doAdd = false;
+							}
+						}
+						if (doAdd) {
+							this.moves.push(tempMove);
+							newMove = true;
+						}
+					}
+				}
 			}
-		}
+		} while (newMove)
 	};
 	
 	this.getMove = function (i, j) {
 		var move = null;
 		if (game.isEdge(i, j)) {
-			var flagCount = game.getNeighboringFlagCount(i, j, this.flagVerified);		
-			console.debug(i + "|" + j + "|" + flagCount + "|" + game.board[i][j] + "|" + game.edges[i][j])
-			if (flagCount==game.board[i][j] && game.edges[i][j]> flagCount) {
-				console.debug("1");
+			var flagCountVerified = game.getNeighboringFlagCount(i, j, this.flagVerified);
+			var flagCount =  game.getNeighboringFlagCount(i, j, game.flag);
+			if (flagCountVerified==game.board[i][j] && game.edges[i][j]> flagCountVerified) {
 				this.checkCorrectFlags(i, j);
-				move = new Move(i, j, "X-Neighbors: Can click all neighbors"); //Relies on flags being correct
+				move = new Move(i, j, "X-Neighbors: Can click all neighbors", 0); //Relies on flags being correct
 				move.allClick(this.flagVerified, game.visible);
-				return move;
-			}
-			if (game.board[i][j]==game.edges[i][j] && game.edges[i][j]>flagCount) {
-				move = new Move(i, j, "X-Neighbors: Can flag all neighbors");
-				move.allMine(this.flagVerified, game.visible);
+			} else if (game.board[i][j]==game.edges[i][j] && game.edges[i][j]>flagCount) {
+				move = new Move(i, j, "X-Neighbors: Can flag all neighbors", 1);
+				move.allMine(game.flag, game.visible);
 			} else {
 				move = this.patternMatching(i, j);
 			}
@@ -100,7 +113,7 @@ function Solver(game) {
 				inputPattern = inputPattern5;
 			for (var j=0; j<4; j++) {
 				if (this.patterns.match(inputPattern, testPattern)) {
-					move = new Move(x, y, "");
+					move = new Move(x, y, "", this.patterns.patterns[key][i][3]);
 					move.determineAction(moveIfCorrect);
 					if (this.testIfAlreadyPerformed(move)) {
 						testPattern = this.patterns.rotate(testPattern);
@@ -133,12 +146,13 @@ function Solver(game) {
 	
 }
 
-function Move(x, y, message) {
+function Move(x, y, message, type) {
 	this.x = x;
 	this.y = y;
 	this.message = message;
 	this.canClick = [];
 	this.canMine = [];
+	this.type = type;
 	
 	this.determineAction = function(pattern) {
 		for (var i=0; i<pattern.length; i++) {
@@ -203,6 +217,7 @@ function Patterns() {
 	    	 [" ", " ", " ", "+", " "],
 	    	 [" ", " ", " ", " ", " "]],
 	    	5,
+	    	2,
         ]
     ];
 	this.patterns[2] = [
@@ -213,6 +228,7 @@ function Patterns() {
 	    	[["X", "+", "X"],
 	    	 [" ", " ", " "],
 	    	 [" ", " ", " "]],
+	    	3,
 	    	3,
 	  	],
     ];
@@ -225,6 +241,7 @@ function Patterns() {
 	    	 [" ", " ", "X"],
 	    	 [" ", " ", " "]],
 	    	3,
+	    	4,
         ]
     ];
 	this.patterns[4] = [];
