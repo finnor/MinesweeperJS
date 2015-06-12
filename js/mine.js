@@ -566,7 +566,6 @@ function explode(x, y) {
 		game.visible[x][y] = true;
 		game.squaresLeft--;
 		game.updateEdges(x, y);
-		console.debug(x + "|" + y);
 	    var value = resolveCellOutput(game.board[x][y], cell);
 	    
 	    if (game.board[x][y]==0) {

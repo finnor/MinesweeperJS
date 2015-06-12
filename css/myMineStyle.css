@@ -116,12 +116,22 @@
   background: #f0f0f0 url(../icons/mine3.ico) center no-repeat;
 }
 
-.clickable:not(.disabled) {
+.clickable:not(.disabled):not(.flag) {
   background: #8FFF8F;
 }
 
-.clickable:hover:not(.disabled) {
+.clickable:hover:not(.disabled):not(.flag) {
   background: #009933;
+}
+
+.clickable.flag {
+  background: url(../icons/flag.ico) center no-repeat,
+  			  #8FFF8F;
+}
+
+.clickable:hover.flag {
+  background: url(../icons/flag.ico) center no-repeat,
+  			  #009933;
 }
 
 .mineable:not(.disabled) {
