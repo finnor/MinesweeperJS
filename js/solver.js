@@ -47,10 +47,10 @@ function Solver(game) {
 			var flagCount =  game.getNeighboringFlagCount(i, j, game.flag);
 			if (flagCountVerified==game.board[i][j] && game.edges[i][j]> flagCountVerified) {
 				this.checkCorrectFlags(i, j);
-				move = new Move(i, j, "X-Neighbors: Can click all neighbors", 0); //Relies on flags being correct
+				move = new Move(i, j, "0", 0);
 				move.allClick(this.flagVerified, game.visible);
 			} else if (game.board[i][j]==game.edges[i][j] && game.edges[i][j]>flagCount) {
-				move = new Move(i, j, "X-Neighbors: Can flag all neighbors", 1);
+				move = new Move(i, j, "1", 1);
 				move.allMine(game.flag, game.visible);
 			} else {
 				move = this.patternMatching(i, j);
