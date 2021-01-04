@@ -5,7 +5,7 @@ import difficulties from "./difficulties";
 import "minesweeperjs-ui/dist/minesweeperjs-ui.css";
 
 
-export default function start(element, options) {
+export function start(element, options) {
   if(typeof element ==="string") {
     if(element.charAt(0)==="#") {
       element = document.getElementById(element.slice(1));
@@ -48,3 +48,5 @@ export default function start(element, options) {
   const ui = new UI(game, solver, difficulty.name);
   element.appendChild(ui.create());
 }
+
+export default start;
